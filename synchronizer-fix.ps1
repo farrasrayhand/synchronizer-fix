@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v4.7
+# Script Fix Aplikasi Synchronizer - Final v4.9 (Dual-Config Aggressive Fix)
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +16,7 @@ function Refresh-Env {
 
 Write-Host "--- Memulai Proses Perbaikan Aplikasi ---" -ForegroundColor Cyan
 
-# --- Langkah 1: Persiapan Package Manager (Chocolatey & Git) ---
+# --- Langkah 1: Persiapan Package Manager ---
 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
     if (!(Test-Path "C:\ProgramData\chocolatey\bin\choco.exe")) {
         Write-Host "Menginstal Chocolatey..." -ForegroundColor Gray
@@ -32,67 +32,73 @@ if (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Refresh-Env
 }
 
-# --- Langkah 2: Reset & Fix PHP (Deep Reset dari Template) ---
+# --- Langkah 2: Reset & Dual-Fix PHP Config (Aggressive Regex) ---
 $basePath = "C:\synchronizer"
-Write-Host "Me-reset Konfigurasi PHP..." -ForegroundColor Cyan
-
-# Copy php.exe ke folder dataweb
-if (Test-Path "$basePath\dataweb\php.exe") { Remove-Item "$basePath\dataweb\php.exe" -Force }
-Copy-Item "$basePath\php\php.exe" -Destination "$basePath\dataweb\php.exe" -Force
-
 $phpDir = "$basePath\php"
 $phpIni = "$phpDir\php.ini"
 $phpDev = "$phpDir\php.ini-development"
+$extPath = "$phpDir\ext"
 
-# Gunakan template development (74KB) untuk menggantikan php.ini yang rusak (5KB)
+Write-Host "Me-reset dan Memperbaiki Konfigurasi PHP (Dual-File)..." -ForegroundColor Cyan
+
+# Copy php.exe ke folder dataweb
+if (Test-Path "$basePath\dataweb\php.exe") { Remove-Item "$basePath\dataweb\php.exe" -Force }
+Copy-Item "$phpDir\php.exe" -Destination "$basePath\dataweb\php.exe" -Force
+
+# Reset php.ini menggunakan template development jika belum ada
 if (Test-Path $phpDev) {
-    Write-Host "Mengkloning php.ini-development menjadi php.ini..." -ForegroundColor Gray
     Copy-Item $phpDev -Destination $phpIni -Force
 }
 
-if (Test-Path $phpIni) {
-    Write-Host "Mengonfigurasi ulang php.ini..." -ForegroundColor Gray
-    $content = Get-Content $phpIni
-    
-    # 1. Aktifkan ekstensi yang diperlukan
-    $extensions = @("pdo_sqlite", "sqlite3", "curl", "mbstring", "openssl", "fileinfo", "gd", "zip")
-    foreach ($ext in $extensions) {
-        $content = $content -replace ";extension=$ext", "extension=$ext"
-    }
-    
-    # 2. Perbaikan Jalur Ekstensi (PENTING)
-    # Kita hapus semua baris extension_dir yang aktif/non-aktif dan ganti dengan jalur absolut yang baru
-    $extPath = "$phpDir\ext"
-    # Cari bagian [On windows:] dan paksa extension_dir mengarah ke path absolut
-    $content = $content -replace ';extension_dir = "ext"', "extension_dir = `"$extPath`""
-    $content = $content -replace 'extension_dir = "ext"', "extension_dir = `"$extPath`""
-    
-    # 3. Pastikan memory_limit cukup untuk composer
-    $content = $content -replace 'memory_limit = 128M', 'memory_limit = 512M'
+# Daftar file yang akan diproses (php.ini dan php.ini-development)
+$targetConfigs = @($phpIni, $phpDev)
 
-    $content | Set-Content $phpIni
-    Write-Host "[OK] php.ini berhasil diperbarui (Zip & Absolute Path enabled)." -ForegroundColor Green
+foreach ($configFile in $targetConfigs) {
+    if (Test-Path $configFile) {
+        Write-Host "Memproses: $(Split-Path $configFile -Leaf)..." -ForegroundColor Gray
+        $content = Get-Content $configFile
+        
+        # Gunakan REGEX Agresif: Cari baris yang dimulai ';' (opsional), spasi (opsional), lalu 'extension=...'
+        $content = $content -replace '^;?\s*extension=pdo_sqlite', 'extension=pdo_sqlite'
+        $content = $content -replace '^;?\s*extension=sqlite3', 'extension=sqlite3'
+        $content = $content -replace '^;?\s*extension=zip', 'extension=zip'
+        $content = $content -replace '^;?\s*extension=curl', 'extension=curl'
+        $content = $content -replace '^;?\s*extension=mbstring', 'extension=mbstring'
+        $content = $content -replace '^;?\s*extension=openssl', 'extension=openssl'
+        $content = $content -replace '^;?\s*extension=fileinfo', 'extension=fileinfo'
+        $content = $content -replace '^;?\s*extension=gd', 'extension=gd'
+        
+        # Paksa extension_dir ke Path Absolut (Menghilangkan error 'driver not found')
+        $content = $content -replace '^;?\s*extension_dir\s*=\s*"ext"', "extension_dir = `"$extPath`""
+        
+        # Naikkan Memory Limit agar tidak crash saat composer/migrate
+        $content = $content -replace '^;?\s*memory_limit\s*=\s*.*', 'memory_limit = 512M'
+
+        $content | Set-Content $configFile
+    }
 }
+Write-Host "[OK] Kedua file konfigurasi PHP telah diperkuat." -ForegroundColor Green
 
 # --- Langkah 3: Composer & Laravel Update ---
 if (Test-Path "$basePath\dataweb\vendor") { 
-    Write-Host "Membersihkan vendor..." -ForegroundColor Gray
+    Write-Host "Membersihkan vendor lama..." -ForegroundColor Gray
     Remove-Item "$basePath\dataweb\vendor" -Recurse -Force -ErrorAction SilentlyContinue 
 }
 
 Set-Location "$basePath\updater"
 & git config --global --add safe.directory "$basePath/dataweb"
+
 Write-Host "Menjalankan composer install..." -ForegroundColor Gray
 cmd.exe /c "composer.bat"
+
 Write-Host "Menjalankan updater (artisan migrate)..." -ForegroundColor Gray
 cmd.exe /c "updater.bat"
 
-# --- Langkah 4: Node.js & NPM (Legacy Peer Deps Fix) ---
-Write-Host "Memeriksa Node.js v24.15.0..." -ForegroundColor Cyan
+# --- Langkah 4: Node.js & NPM ---
+Write-Host "Memastikan Node.js v24.15.0..." -ForegroundColor Cyan
 & choco install nodejs --version="24.15.0" -y --force --force-dependencies
 Refresh-Env
 
-# Buat script batch untuk NPM dengan auto-close
 $npmScriptPath = "$basePath\run_npm.bat"
 $npmContent = @"
 @echo off
@@ -100,12 +106,10 @@ set "PATH=%PATH%;C:\ProgramData\chocolatey\bin;%ProgramFiles%\nodejs;%ProgramFil
 cd /d "$basePath\dataweb"
 echo Membersihkan cache dan install dependensi...
 call npm cache clean --force
-:: Menggunakan legacy-peer-deps untuk mengatasi error ERESOLVE
 call npm install --legacy-peer-deps
 echo Memulai proses build...
 call npm run build
-echo.
-echo Selesai! Menutup jendela dalam 3 detik...
+echo Selesai! Menutup jendela...
 timeout /t 3
 exit
 "@
