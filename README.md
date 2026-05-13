@@ -20,16 +20,6 @@ Skrip untuk fix error saat instalasi eRapor SMK Synchronizer.
 
 ---
 
-## Cara Penggunaan Cepat (PowerShell)
-
-Untuk menjalankan **eRapor SMK Synchronizer Fix Install** langsung dari PowerShell:
-
-```powershell
-powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/synchronizer-fix.ps1 | iex"
-```
-
----
-
 ## Cara Kontribusi
 
 1. Fork repositori ini.
