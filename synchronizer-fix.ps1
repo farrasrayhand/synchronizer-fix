@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v5.0
+# Script Fix Aplikasi Synchronizer - Final v5.1
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +16,7 @@ function Refresh-Env {
 
 Write-Host "--- Memulai Proses Perbaikan Aplikasi ---" -ForegroundColor Cyan
 
-# --- Langkah 1: Hentikan Proses yang Mengunci File ---
+# --- Langkah 1: Hentikan Semua Proses yang Mengunci File ---
 Write-Host "Menghentikan proses yang sedang berjalan..." -ForegroundColor Cyan
 $processesToKill = @("php", "synchronizer", "node")
 foreach ($proc in $processesToKill) {
@@ -26,7 +26,7 @@ foreach ($proc in $processesToKill) {
         Write-Host "[OK] Proses $proc dihentikan." -ForegroundColor Green
     }
 }
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 3
 
 # --- Langkah 2: Persiapan Package Manager ---
 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
@@ -44,34 +44,27 @@ if (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Refresh-Env
 }
 
-# Matikan konversi line ending agar tidak muncul warning LF/CRLF
+# --- Langkah 3: Konfigurasi Git Global (non-interaktif) ---
+Write-Host "Mengkonfigurasi Git..." -ForegroundColor Cyan
 & git config --global core.autocrlf false
+& git config --global advice.detachedHead false
+& git config --global core.fileMode false
+$env:GIT_TERMINAL_PROMPT = "0"
+$env:GIT_ASK_YESNO = "false"
 
-# --- Langkah 3: Sinkronisasi PHP ke folder dataweb ---
+# --- Langkah 4: Hapus php.exe di dataweb SEBELUM Git pull ---
+# (Agar Git tidak gagal unlink saat update)
 $basePath = "C:\synchronizer"
 $phpDir = "$basePath\php"
 $phpIni = "$phpDir\php.ini"
 
-Write-Host "Menyinkronisasi php.exe dan php.ini ke folder dataweb..." -ForegroundColor Cyan
-
-# Copy php.exe
-if (Test-Path "$basePath\dataweb\php.exe") { Remove-Item "$basePath\dataweb\php.exe" -Force }
-Copy-Item "$phpDir\php.exe" -Destination "$basePath\dataweb\php.exe" -Force
-
-# Copy php.ini agar php.exe di dataweb\ bisa membaca konfigurasi ekstensi
-Copy-Item $phpIni -Destination "$basePath\dataweb\php.ini" -Force
-
-Write-Host "[OK] php.exe dan php.ini berhasil disinkronisasi ke dataweb\." -ForegroundColor Green
-
-# Verifikasi ekstensi sqlite aktif
-$sqliteCheck = & "$basePath\dataweb\php.exe" -m 2>&1
-if ($sqliteCheck -match "pdo_sqlite") {
-    Write-Host "[OK] Ekstensi pdo_sqlite aktif dan terdeteksi." -ForegroundColor Green
-} else {
-    Write-Host "[WARN] pdo_sqlite belum terdeteksi, periksa php.ini secara manual." -ForegroundColor Yellow
+Write-Host "Menghapus php.exe lama di dataweb agar Git tidak terkunci..." -ForegroundColor Cyan
+if (Test-Path "$basePath\dataweb\php.exe") {
+    Remove-Item "$basePath\dataweb\php.exe" -Force -ErrorAction SilentlyContinue
+    Write-Host "[OK] php.exe lama dihapus." -ForegroundColor Green
 }
 
-# --- Langkah 4: Composer & Laravel Update ---
+# --- Langkah 5: Composer & Laravel Update (Git pull di dalam updater.bat) ---
 if (Test-Path "$basePath\dataweb\vendor") {
     Write-Host "Membersihkan vendor lama..." -ForegroundColor Gray
     Remove-Item "$basePath\dataweb\vendor" -Recurse -Force -ErrorAction SilentlyContinue
@@ -86,7 +79,21 @@ cmd.exe /c "composer.bat"
 Write-Host "Menjalankan updater (artisan migrate)..." -ForegroundColor Gray
 cmd.exe /c "updater.bat"
 
-# --- Langkah 5: Node.js & NPM ---
+# --- Langkah 6: Copy php.exe & php.ini SETELAH Git pull selesai ---
+Write-Host "Menyinkronisasi php.exe dan php.ini ke folder dataweb..." -ForegroundColor Cyan
+Copy-Item "$phpDir\php.exe" -Destination "$basePath\dataweb\php.exe" -Force
+Copy-Item "$phpIni" -Destination "$basePath\dataweb\php.ini" -Force
+Write-Host "[OK] php.exe dan php.ini berhasil disinkronisasi ke dataweb\." -ForegroundColor Green
+
+# Verifikasi ekstensi sqlite aktif
+$sqliteCheck = & "$basePath\dataweb\php.exe" -m 2>&1
+if ($sqliteCheck -match "pdo_sqlite") {
+    Write-Host "[OK] Ekstensi pdo_sqlite aktif dan terdeteksi." -ForegroundColor Green
+} else {
+    Write-Host "[WARN] pdo_sqlite belum terdeteksi, periksa php.ini secara manual." -ForegroundColor Yellow
+}
+
+# --- Langkah 7: Node.js & NPM ---
 Write-Host "Memastikan Node.js v24.15.0..." -ForegroundColor Cyan
 & choco install nodejs --version="24.15.0" -y --force --force-dependencies
 Refresh-Env
