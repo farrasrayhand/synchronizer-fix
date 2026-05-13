@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v4.2 (Force SQLite Driver)
+# Script Fix Aplikasi Synchronizer - Final v4.3 (Legacy Peer Deps & Path Fix)
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -38,25 +38,25 @@ Write-Host "Memperbaiki PHP & Konfigurasi php.ini..." -ForegroundColor Cyan
 if (Test-Path "$basePath\dataweb\php.exe") { Remove-Item "$basePath\dataweb\php.exe" -Force }
 Copy-Item "$basePath\php\php.exe" -Destination "$basePath\dataweb\php.exe" -Force
 
-# EDIT PHP.INI: Mengaktifkan SQLite Driver
+# EDIT PHP.INI: Paksa aktifkan SQLite dan arahkan extension_dir
 $phpIni = "$basePath\php\php.ini"
 if (Test-Path $phpIni) {
-    Write-Host "Mengaktifkan pdo_sqlite di php.ini..." -ForegroundColor Gray
+    Write-Host "Mengonfigurasi driver database di php.ini..." -ForegroundColor Gray
     $content = Get-Content $phpIni
     
-    # Menghapus ';' untuk mengaktifkan extension secara paksa
+    # Aktifkan extension
     $content = $content -replace ';extension=pdo_sqlite', 'extension=pdo_sqlite'
     $content = $content -replace ';extension=sqlite3', 'extension=sqlite3'
     $content = $content -replace ';extension=mbstring', 'extension=mbstring'
     $content = $content -replace ';extension=openssl', 'extension=openssl'
     
-    # Pastikan extension_dir diatur ke folder ext yang benar agar driver ditemukan
-    if ($content -notmatch "extension_dir = `"ext`"") {
-        $content = $content -replace ';extension_dir = `"ext`"', 'extension_dir = "ext"'
-    }
+    # Paksa extension_dir menggunakan path absolut agar tidak salah baca
+    $extPath = "$basePath\php\ext"
+    $content = $content -replace ';extension_dir = "ext"', "extension_dir = `"$extPath`""
+    $content = $content -replace 'extension_dir = "ext"', "extension_dir = `"$extPath`""
 
     $content | Set-Content $phpIni
-    Write-Host "[OK] Driver SQLite diaktifkan." -ForegroundColor Green
+    Write-Host "[OK] Konfigurasi php.ini diperbarui." -ForegroundColor Green
 }
 
 # --- Langkah 3: Composer & Update ---
@@ -69,23 +69,25 @@ Set-Location "$basePath\updater"
 Write-Host "Menjalankan composer install..." -ForegroundColor Gray
 cmd.exe /c "composer.bat"
 
-# Jalankan updater (artisan migrate)
 Write-Host "Menjalankan updater/migration..." -ForegroundColor Gray
 cmd.exe /c "updater.bat"
 
-# --- Langkah 4: Fix Node.js ---
+# --- Langkah 4: Fix Node.js & NPM ERESOLVE ---
 Write-Host "Memperbaiki Instalasi Node.js..." -ForegroundColor Cyan
 & choco install nodejs --version="24.15.0" -y --force --force-dependencies
 Refresh-Env
 
-# Jalankan NPM Build
+# Jalankan NPM Build dengan fix legacy-peer-deps
 $npmScriptPath = "$basePath\run_npm.bat"
 $npmContent = @"
 @echo off
 set "PATH=%PATH%;C:\ProgramData\chocolatey\bin;%ProgramFiles%\nodejs;%ProgramFiles%\Git\cmd"
 cd /d "$basePath\dataweb"
-echo Memulai npm install dan build...
-call npm install
+echo Membersihkan cache npm...
+call npm cache clean --force
+echo Memulai npm install (dengan legacy-peer-deps fix)...
+call npm install --legacy-peer-deps
+echo Memulai npm run build...
 call npm run build
 pause
 "@
