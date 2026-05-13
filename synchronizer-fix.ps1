@@ -79,6 +79,20 @@ foreach ($configFile in $targetConfigs) {
 }
 Write-Host "[OK] Kedua file konfigurasi PHP telah diperkuat." -ForegroundColor Green
 
+# ✅ FIX BARU: Copy php.ini ke dataweb\ agar php.exe di sana bisa membacanya
+Write-Host "Menyalin php.ini ke folder dataweb..." -ForegroundColor Cyan
+Copy-Item $phpIni -Destination "$basePath\dataweb\php.ini" -Force
+Write-Host "[OK] php.ini berhasil disalin ke dataweb\." -ForegroundColor Green
+
+# Verifikasi php.ini terbaca oleh php.exe di dataweb
+Write-Host "Verifikasi konfigurasi PHP di dataweb..." -ForegroundColor Cyan
+$phpCheck = & "$basePath\dataweb\php.exe" -m 2>&1
+if ($phpCheck -match "pdo_sqlite") {
+    Write-Host "[OK] Ekstensi pdo_sqlite aktif dan terdeteksi." -ForegroundColor Green
+} else {
+    Write-Host "[WARN] pdo_sqlite belum terdeteksi, periksa php.ini secara manual." -ForegroundColor Yellow
+}
+
 # --- Langkah 3: Composer & Laravel Update ---
 if (Test-Path "$basePath\dataweb\vendor") { 
     Write-Host "Membersihkan vendor lama..." -ForegroundColor Gray
