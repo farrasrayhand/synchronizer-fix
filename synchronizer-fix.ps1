@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v4.6
+# Script Fix Aplikasi Synchronizer - Final v4.7
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -51,42 +51,44 @@ if (Test-Path $phpDev) {
 }
 
 if (Test-Path $phpIni) {
+    Write-Host "Mengonfigurasi ulang php.ini..." -ForegroundColor Gray
     $content = Get-Content $phpIni
     
-    # Aktifkan ekstensi database dan sistem yang diperlukan
-    $content = $content -replace ';extension=pdo_sqlite', 'extension=pdo_sqlite'
-    $content = $content -replace ';extension=sqlite3', 'extension=sqlite3'
-    $content = $content -replace ';extension=curl', 'extension=curl'
-    $content = $content -replace ';extension=mbstring', 'extension=mbstring'
-    $content = $content -replace ';extension=openssl', 'extension=openssl'
-    $content = $content -replace ';extension=fileinfo', 'extension=fileinfo'
-    $content = $content -replace ';extension=gd', 'extension=gd'
-    $content = $content -replace ';extension=zip', 'extension=zip' # FIX: Aktifkan Zip Extension
+    # 1. Aktifkan ekstensi yang diperlukan
+    $extensions = @("pdo_sqlite", "sqlite3", "curl", "mbstring", "openssl", "fileinfo", "gd", "zip")
+    foreach ($ext in $extensions) {
+        $content = $content -replace ";extension=$ext", "extension=$ext"
+    }
     
-    # Set extension_dir secara absolut agar driver .dll terbaca dengan benar
+    # 2. Perbaikan Jalur Ekstensi (PENTING)
+    # Kita hapus semua baris extension_dir yang aktif/non-aktif dan ganti dengan jalur absolut yang baru
     $extPath = "$phpDir\ext"
+    # Cari bagian [On windows:] dan paksa extension_dir mengarah ke path absolut
     $content = $content -replace ';extension_dir = "ext"', "extension_dir = `"$extPath`""
     $content = $content -replace 'extension_dir = "ext"', "extension_dir = `"$extPath`""
+    
+    # 3. Pastikan memory_limit cukup untuk composer
+    $content = $content -replace 'memory_limit = 128M', 'memory_limit = 512M'
 
     $content | Set-Content $phpIni
-    Write-Host "[OK] php.ini berhasil di-reset dan diperbarui (Zip enabled)." -ForegroundColor Green
+    Write-Host "[OK] php.ini berhasil diperbarui (Zip & Absolute Path enabled)." -ForegroundColor Green
 }
 
 # --- Langkah 3: Composer & Laravel Update ---
 if (Test-Path "$basePath\dataweb\vendor") { 
+    Write-Host "Membersihkan vendor..." -ForegroundColor Gray
     Remove-Item "$basePath\dataweb\vendor" -Recurse -Force -ErrorAction SilentlyContinue 
 }
 
 Set-Location "$basePath\updater"
 & git config --global --add safe.directory "$basePath/dataweb"
 Write-Host "Menjalankan composer install..." -ForegroundColor Gray
-# Paksa composer menggunakan php.ini yang baru kita fix
 cmd.exe /c "composer.bat"
 Write-Host "Menjalankan updater (artisan migrate)..." -ForegroundColor Gray
 cmd.exe /c "updater.bat"
 
 # --- Langkah 4: Node.js & NPM (Legacy Peer Deps Fix) ---
-Write-Host "Memastikan Node.js v24.15.0 terinstal..." -ForegroundColor Cyan
+Write-Host "Memeriksa Node.js v24.15.0..." -ForegroundColor Cyan
 & choco install nodejs --version="24.15.0" -y --force --force-dependencies
 Refresh-Env
 
