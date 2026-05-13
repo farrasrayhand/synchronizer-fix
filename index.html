@@ -3,102 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutorial Perbaikan Sinkronisasi</title>
+    <title>Script Collection - Farras Rayhand</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .command-wrap { word-break: break-all; }
     </style>
 </head>
-<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-2xl w-full bg-slate-900 rounded-2xl shadow-2xl p-6 sm:p-10 border border-slate-800">
+<body class="bg-slate-950 min-h-screen text-slate-200">
+    <div class="max-w-4xl mx-auto px-4 py-12">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-500/10 text-blue-400 rounded-xl mb-4 border border-blue-500/20">
-                <i class="fas fa-tools text-xl"></i>
-            </div>
-            <h1 class="text-2xl font-extrabold text-white mb-2">Perbaikan Sinkronisasi</h1>
-            <p class="text-slate-400 text-sm sm:text-base">Ikuti panduan cepat ini untuk memperbaiki sistem Anda.</p>
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-white mb-4">Script Collection</h1>
+            <p class="text-slate-400 text-lg">Kumpulan skrip otomatis.</p>
         </div>
 
-        <!-- Langkah-langkah -->
-        <div class="space-y-8">
-            <!-- Langkah 1 -->
-            <div class="flex gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">1</div>
-                <div>
-                    <h3 class="font-bold text-slate-100">Buka PowerShell (Admin)</h3>
-                    <p class="text-slate-400 text-sm mt-1">Klik kanan Start > <span class="text-blue-400 font-semibold">Terminal (Admin)</span> atau PowerShell (Admin).</p>
-                </div>
-            </div>
-
-            <!-- Langkah 2 -->
-            <div class="flex gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">2</div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="font-bold text-slate-100">Salin Perintah</h3>
-                    <p class="text-slate-400 text-sm mt-1 mb-3">Klik tombol salin di bawah ini.</p>
-                    
-                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Terminal</span>
-                            <button onclick="copyToClipboard()" class="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all text-xs font-semibold" id="copy-btn">
-                                <i class="far fa-copy" id="copy-icon"></i>
-                                <span id="copy-text">Salin</span>
-                            </button>
-                        </div>
-                        <div class="p-4">
-                            <code id="command-text" class="text-blue-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"</code>
-                        </div>
+        <!-- Scripts Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Synchronizer Fix -->
+            <a href="web/synchronizer-fix/index.html" class="group bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 transition-all shadow-xl hover:shadow-blue-500/10">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                        <i class="fas fa-tools text-xl"></i>
                     </div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800 px-2 py-1 rounded">PowerShell</span>
                 </div>
-            </div>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">eRapor SMK Synchronizer Fix Install</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                    Skrip untuk fix error saat instalasi eRapor SMK Synchronizer.
+                </p>
+                <div class="flex items-center gap-2 text-blue-400 text-sm font-semibold">
+                    <span>Lihat Tutorial</span>
+                    <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
 
-            <!-- Langkah 3 -->
-            <div class="flex gap-4">
-                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">3</div>
-                <div>
-                    <h3 class="font-bold text-slate-100">Jalankan</h3>
-                    <p class="text-slate-400 text-sm mt-1">Paste ke PowerShell lalu tekan <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-bold text-slate-200">ENTER</kbd>.</p>
+            <!-- Add more scripts here in the future -->
+            <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 border-dashed flex flex-col items-center justify-center text-center opacity-50">
+                <div class="p-3 bg-slate-800 text-slate-500 rounded-xl mb-4">
+                    <i class="fas fa-plus text-xl"></i>
                 </div>
+                <h3 class="text-lg font-bold text-slate-500 mb-1">Coming Soon</h3>
+                <p class="text-slate-600 text-sm italic">Skrip baru akan ditambahkan segera.</p>
             </div>
         </div>
 
-        <!-- Info -->
-        <div class="mt-10 p-4 bg-blue-500/5 rounded-xl border border-blue-500/10 flex gap-3 items-center">
-            <i class="fas fa-info-circle text-blue-400"></i>
-            <p class="text-blue-300/80 text-xs">Pastikan koneksi internet aktif saat menjalankan skrip.</p>
-        </div>
-
-        <!-- Credit -->
-        <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+        <!-- Footer -->
+        <div class="mt-20 pt-8 border-t border-slate-800 text-center">
             <a href="https://github.com/farrasrayhand" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-slate-500 hover:text-blue-400 transition-colors text-xs font-medium group">
                 <i class="fab fa-github text-sm group-hover:scale-110 transition-transform"></i>
                 <span>Developed by farrasrayhand</span>
             </a>
         </div>
     </div>
-
-    <script>
-        function copyToClipboard() {
-            const commandText = document.getElementById('command-text').innerText;
-            const btn = document.getElementById('copy-btn');
-            const icon = document.getElementById('copy-icon');
-            const text = document.getElementById('copy-text');
-
-            navigator.clipboard.writeText(commandText).then(() => {
-                text.innerText = 'Tersalin!';
-                icon.className = 'fas fa-check';
-                btn.classList.replace('bg-blue-600', 'bg-emerald-600');
-                setTimeout(() => {
-                    text.innerText = 'Salin';
-                    icon.className = 'far fa-copy';
-                    btn.classList.replace('bg-emerald-600', 'bg-blue-600');
-                }, 2000);
-            });
-        }
-    </script>
 </body>
 </html>
