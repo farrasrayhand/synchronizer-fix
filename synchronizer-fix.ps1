@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v4.5
+# Script Fix Aplikasi Synchronizer - Final v4.6
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -61,6 +61,7 @@ if (Test-Path $phpIni) {
     $content = $content -replace ';extension=openssl', 'extension=openssl'
     $content = $content -replace ';extension=fileinfo', 'extension=fileinfo'
     $content = $content -replace ';extension=gd', 'extension=gd'
+    $content = $content -replace ';extension=zip', 'extension=zip' # FIX: Aktifkan Zip Extension
     
     # Set extension_dir secara absolut agar driver .dll terbaca dengan benar
     $extPath = "$phpDir\ext"
@@ -68,7 +69,7 @@ if (Test-Path $phpIni) {
     $content = $content -replace 'extension_dir = "ext"', "extension_dir = `"$extPath`""
 
     $content | Set-Content $phpIni
-    Write-Host "[OK] php.ini berhasil di-reset dan diperbarui." -ForegroundColor Green
+    Write-Host "[OK] php.ini berhasil di-reset dan diperbarui (Zip enabled)." -ForegroundColor Green
 }
 
 # --- Langkah 3: Composer & Laravel Update ---
@@ -79,6 +80,7 @@ if (Test-Path "$basePath\dataweb\vendor") {
 Set-Location "$basePath\updater"
 & git config --global --add safe.directory "$basePath/dataweb"
 Write-Host "Menjalankan composer install..." -ForegroundColor Gray
+# Paksa composer menggunakan php.ini yang baru kita fix
 cmd.exe /c "composer.bat"
 Write-Host "Menjalankan updater (artisan migrate)..." -ForegroundColor Gray
 cmd.exe /c "updater.bat"
