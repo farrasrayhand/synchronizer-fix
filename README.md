@@ -1,6 +1,6 @@
 # Script Collection
 
-Kumpulan skrip otomasi, perbaikan sistem, dan alat utilitas lainnya oleh Farras Rayhand.
+Kumpulan skrip otomatis oleh Farras Rayhand.
 
 ## Struktur Repositori
 
@@ -12,20 +12,31 @@ Repositori ini diatur sebagai berikut:
 
 ## Daftar Skrip
 
-### 1. Synchronizer Fix
-Alat perbaikan sinkronisasi sistem otomatis untuk Windows.
+### 1. eRapor SMK Synchronizer Fix Install
+Skrip untuk fix error saat instalasi eRapor SMK Synchronizer.
 - **Skrip**: `scripts/synchronizer-fix.ps1`
 - **Tutorial**: [web/synchronizer-fix/index.html](web/synchronizer-fix/index.html)
+- **Direct Link**: [script.minicenter.my.id](http://script.minicenter.my.id)
+
+---
+
+## Cara Penggunaan Cepat (PowerShell)
+
+Untuk menjalankan **eRapor SMK Synchronizer Fix Install** langsung dari PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/synchronizer-fix.ps1 | iex"
+```
 
 ---
 
 ## Cara Kontribusi
 
 1. Fork repositori ini.
-2. Buat folder baru di `/web/[nama-skrip]` untuk tutorialnya.
-3. Simpan skrip di `/scripts/[nama-skrip]`.
+2. Simpan skrip di folder `/scripts/[nama-skrip]`.
+3. Buat folder baru di `/web/[nama-skrip]` untuk tutorial/halaman webnya.
 4. Perbarui `index.html` utama dan `README.md`.
 5. Kirim Pull Request.
 
 ---
-*Dibuat untuk mempermudah manajemen skrip pribadi dan berbagi solusi.*
+*Developed by farrasrayhand*
