@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v5.2 (Merged)
+# Script Fix Aplikasi Synchronizer - Final v5.3 (Merged Fixed)
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -9,6 +9,11 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     exit
 }
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+
+# Fungsi untuk memperbarui Environment Path secara instan
+function Refresh-Env {
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
 
 Write-Host "--- Memulai Proses Perbaikan Aplikasi ---" -ForegroundColor Cyan
 
@@ -32,8 +37,8 @@ if (!(Test-Path $basePath)) {
     }
 }
 
-$phpDir   = "$basePath\php"
-$phpIni   = "$phpDir\php.ini"
+$phpDir = "$basePath\php"
+$phpIni = "$phpDir\php.ini"
 
 # --- Langkah 2: Hentikan Semua Proses yang Mengunci File ---
 Write-Host "Menghentikan proses yang sedang berjalan..." -ForegroundColor Cyan
@@ -47,7 +52,26 @@ foreach ($proc in $processesToKill) {
 }
 Start-Sleep -Seconds 3
 
-# --- Langkah 3: Konfigurasi Git Global (non-interaktif) ---
+# --- Langkah 3: Persiapan Package Manager ---
+Write-Host "Memeriksa Chocolatey..." -ForegroundColor Cyan
+if (!(Test-Path "C:\ProgramData\chocolatey\bin\choco.exe")) {
+    Write-Host "Menginstal Chocolatey..." -ForegroundColor Gray
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+}
+# Tambahkan path Chocolatey secara manual agar langsung terbaca
+$env:Path = "C:\ProgramData\chocolatey\bin;" + $env:Path
+Refresh-Env
+Write-Host "[OK] Chocolatey siap." -ForegroundColor Green
+
+# Install Git jika belum ada
+if (!(Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Host "Menginstal Git..." -ForegroundColor Gray
+    & "C:\ProgramData\chocolatey\bin\choco.exe" install git -y
+    Refresh-Env
+}
+
+# --- Langkah 4: Konfigurasi Git Global (non-interaktif) ---
 if (Get-Command git -ErrorAction SilentlyContinue) {
     Write-Host "Mengkonfigurasi Git..." -ForegroundColor Cyan
     & git config --global core.autocrlf false
@@ -58,8 +82,7 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 $env:GIT_TERMINAL_PROMPT = "0"
 $env:GIT_ASK_YESNO = "false"
 
-# --- Langkah 4: Fix PHP Corrupt ---
-# Copy php.exe & php.ini SEBELUM updater agar Git pull tidak terkunci
+# --- Langkah 5: Fix PHP Corrupt ---
 Write-Host "Memperbaiki PHP..." -ForegroundColor Cyan
 if (Test-Path "$basePath\dataweb\php.exe") {
     Remove-Item "$basePath\dataweb\php.exe" -Force -ErrorAction SilentlyContinue
@@ -85,7 +108,7 @@ if ($sqliteCheck -match "pdo_sqlite") {
     Write-Host "[WARN] pdo_sqlite belum terdeteksi, periksa php.ini secara manual." -ForegroundColor Yellow
 }
 
-# --- Langkah 5: Fix Composer Error ---
+# --- Langkah 6: Fix Composer & Laravel Update ---
 Write-Host "Memperbaiki Composer & Vendor..." -ForegroundColor Cyan
 if (Test-Path "$basePath\dataweb\vendor") {
     Remove-Item "$basePath\dataweb\vendor" -Recurse -Force -ErrorAction SilentlyContinue
@@ -94,26 +117,19 @@ if (Test-Path "$basePath\updater") {
     Set-Location "$basePath\updater"
     cmd.exe /c "composer.bat"
     cmd.exe /c "updater.bat"
-    Write-Host "[OK] Langkah 5 selesai." -ForegroundColor Green
+    Write-Host "[OK] Langkah 6 selesai." -ForegroundColor Green
 }
 
-# --- Langkah 6: Re-copy php.ini setelah Git pull ---
-# (Jaga-jaga kalau Git pull menimpa php.ini di dataweb\)
+# --- Langkah 7: Re-copy php.ini setelah Git pull ---
 if (Test-Path $phpIni) {
     Copy-Item $phpIni -Destination "$basePath\dataweb\php.ini" -Force
     Write-Host "[OK] php.ini di-refresh setelah Git pull." -ForegroundColor Green
 }
 
-# --- Langkah 7: Fix Web Blank & NPM Error ---
+# --- Langkah 8: Fix Web Blank & NPM Error ---
 Write-Host "Memeriksa Node.js & NPM..." -ForegroundColor Cyan
-if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-}
-choco install nodejs --version="24.15.0" -y --force-dependencies
-
-# Force refresh PATH agar NPM terbaca langsung
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+& "C:\ProgramData\chocolatey\bin\choco.exe" install nodejs --version="24.15.0" -y --force-dependencies
+Refresh-Env
 
 Write-Host "Menjalankan NPM Install & Build..." -ForegroundColor Cyan
 $npmScriptPath = "$basePath\run_npm.bat"
