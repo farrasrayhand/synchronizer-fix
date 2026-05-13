@@ -1,4 +1,4 @@
-# Script Fix Aplikasi Synchronizer - Final v4.3 (Legacy Peer Deps & Path Fix)
+# Script Fix Aplikasi Synchronizer - Final v4.4 (Deep Reset PHP & NPM Fix)
 # Usage: powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/synchronizer-fix.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
@@ -30,36 +30,45 @@ if (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Refresh-Env
 }
 
-# --- Langkah 2: Fix PHP & Force SQLite Driver ---
+# --- Langkah 2: Reset & Fix PHP (Menggunakan Template Development) ---
 $basePath = "C:\synchronizer"
-Write-Host "Memperbaiki PHP & Konfigurasi php.ini..." -ForegroundColor Cyan
+Write-Host "Me-reset Konfigurasi PHP agar tidak rusak..." -ForegroundColor Cyan
 
-# Pastikan php.exe terbaru sudah di copy
 if (Test-Path "$basePath\dataweb\php.exe") { Remove-Item "$basePath\dataweb\php.exe" -Force }
 Copy-Item "$basePath\php\php.exe" -Destination "$basePath\dataweb\php.exe" -Force
 
-# EDIT PHP.INI: Paksa aktifkan SQLite dan arahkan extension_dir
-$phpIni = "$basePath\php\php.ini"
+$phpDir = "$basePath\php"
+$phpIni = "$phpDir\php.ini"
+$phpDev = "$phpDir\php.ini-development"
+
+# Gunakan template development karena isinya jauh lebih lengkap (74KB vs 5KB)
+if (Test-Path $phpDev) {
+    Write-Host "Mengkloning php.ini-development menjadi php.ini..." -ForegroundColor Gray
+    Copy-Item $phpDev -Destination $phpIni -Force
+}
+
 if (Test-Path $phpIni) {
-    Write-Host "Mengonfigurasi driver database di php.ini..." -ForegroundColor Gray
     $content = Get-Content $phpIni
     
-    # Aktifkan extension
+    # Aktifkan ekstensi wajib
     $content = $content -replace ';extension=pdo_sqlite', 'extension=pdo_sqlite'
     $content = $content -replace ';extension=sqlite3', 'extension=sqlite3'
+    $content = $content -replace ';extension=curl', 'extension=curl'
     $content = $content -replace ';extension=mbstring', 'extension=mbstring'
     $content = $content -replace ';extension=openssl', 'extension=openssl'
+    $content = $content -replace ';extension=fileinfo', 'extension=fileinfo'
+    $content = $content -replace ';extension=gd', 'extension=gd'
     
-    # Paksa extension_dir menggunakan path absolut agar tidak salah baca
-    $extPath = "$basePath\php\ext"
+    # Set extension_dir secara absolut agar driver .dll terbaca dengan pasti
+    $extPath = "$phpDir\ext"
     $content = $content -replace ';extension_dir = "ext"', "extension_dir = `"$extPath`""
     $content = $content -replace 'extension_dir = "ext"', "extension_dir = `"$extPath`""
 
     $content | Set-Content $phpIni
-    Write-Host "[OK] Konfigurasi php.ini diperbarui." -ForegroundColor Green
+    Write-Host "[OK] php.ini berhasil diperbarui dari template." -ForegroundColor Green
 }
 
-# --- Langkah 3: Composer & Update ---
+# --- Langkah 3: Composer & Laravel Update ---
 if (Test-Path "$basePath\dataweb\vendor") { 
     Remove-Item "$basePath\dataweb\vendor" -Recurse -Force -ErrorAction SilentlyContinue 
 }
@@ -68,31 +77,29 @@ Set-Location "$basePath\updater"
 & git config --global --add safe.directory "$basePath/dataweb"
 Write-Host "Menjalankan composer install..." -ForegroundColor Gray
 cmd.exe /c "composer.bat"
-
-Write-Host "Menjalankan updater/migration..." -ForegroundColor Gray
+Write-Host "Menjalankan updater (artisan migrate)..." -ForegroundColor Gray
 cmd.exe /c "updater.bat"
 
-# --- Langkah 4: Fix Node.js & NPM ERESOLVE ---
-Write-Host "Memperbaiki Instalasi Node.js..." -ForegroundColor Cyan
+# --- Langkah 4: Fix Node.js & NPM (Legacy Peer Deps) ---
+Write-Host "Memastikan Node.js terinstal..." -ForegroundColor Cyan
 & choco install nodejs --version="24.15.0" -y --force --force-dependencies
 Refresh-Env
 
-# Jalankan NPM Build dengan fix legacy-peer-deps
 $npmScriptPath = "$basePath\run_npm.bat"
 $npmContent = @"
 @echo off
 set "PATH=%PATH%;C:\ProgramData\chocolatey\bin;%ProgramFiles%\nodejs;%ProgramFiles%\Git\cmd"
 cd /d "$basePath\dataweb"
-echo Membersihkan cache npm...
+echo Membersihkan cache dan install dependensi...
 call npm cache clean --force
-echo Memulai npm install (dengan legacy-peer-deps fix)...
+:: Menggunakan legacy-peer-deps untuk mengatasi ERESOLVE
 call npm install --legacy-peer-deps
-echo Memulai npm run build...
+echo Memulai proses build...
 call npm run build
 pause
 "@
 $npmContent | Out-File $npmScriptPath -Encoding ASCII
 Start-Process "cmd.exe" "/c $npmScriptPath" -Wait
 
-Write-Host "--- Semua perbaikan selesai ---" -ForegroundColor Green
+Write-Host "--- Perbaikan Selesai ---" -ForegroundColor Green
 Start-Process "http://localhost:7008"
