@@ -75,26 +75,36 @@ function Get-ImagickDllUrl($version, $ts, $arch) {
         
         # 3. Dapatkan halaman subpage DLL
         $dllPage = Invoke-WebRequest -Uri $dllPageUrl -UseBasicParsing -UserAgent $userAgent
+        $content = $dllPage.Content
         
         # 4. Cari link zip di halaman tersebut
-        # Pola link: https://windows.php.net/downloads/pecl/releases/imagick/3.8.1/php_imagick-3.8.1-8.3-nts-vs16-x64.zip
-        $allLinks = [regex]::Matches($dllPage.Content, 'https://windows\.php\.net/downloads/pecl/releases/imagick/[^"]+\.zip')
-        Write-Info "Ditemukan $($allLinks.Count) link download di halaman DLL."
+        # Kita cari pola yang mengandung php_imagick dan .zip dalam atribut href
+        $regexZip = 'href="?([^">]+?php_imagick[^">]+?\.zip)"?'
+        $matchesZip = [regex]::Matches($content, $regexZip, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
         
-        $match = $allLinks | Where-Object {
-            $_.Value -match "-$version-" -and
-            $_.Value -match "-$ts-" -and
-            $_.Value -match "-$arch\.zip"
-        } | Select-Object -First 1
+        Write-Info "Ditemukan $($matchesZip.Count) link zip di halaman DLL."
+        
+        $foundUrl = $null
+        foreach ($m in $matchesZip) {
+            $link = $m.Groups[1].Value
+            # Jika link relatif, tambahkan prefix (tapi biasanya di PECL ini link absolut ke windows.php.net)
+            if ($link -like "/*") { $link = "https://pecl.php.net" + $link }
+            elseif ($link -notlike "http*") { $link = "https://windows.php.net/downloads/pecl/releases/imagick/" + $link }
 
-        if (-not $match) {
-            # Debug: cetak link yang ada jika tidak ketemu
-            Write-Warn "Tidak ada yang cocok dengan: PHP $version, $ts, $arch"
+            if ($link -match "-$version-" -and $link -match "-$ts-" -and $link -match "-$arch\.zip") {
+                $foundUrl = $link
+                break
+            }
         }
 
-        $url = if ($match) { $match.Value } else { $null }
-        $peclCache[$cacheKey] = $url
-        return $url
+        if (-not $foundUrl -and $matchesZip.Count -eq 0) {
+            # Debug: cetak sedikit isi konten jika tidak ketemu apa-apa
+            $sample = if ($content.Length -gt 200) { $content.Substring(0, 200) } else { $content }
+            Write-Warn "Konten halaman (awal): $sample"
+        }
+
+        $peclCache[$cacheKey] = $foundUrl
+        return $foundUrl
     } catch {
         Write-Fail "Error saat mencari DLL: $($_.Exception.Message)"
         return $null
