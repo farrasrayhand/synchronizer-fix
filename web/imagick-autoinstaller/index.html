@@ -35,8 +35,8 @@
             <div class="flex gap-4">
                 <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-purple-900/50">1</div>
                 <div>
-                    <h3 class="font-bold text-slate-100">Buka PowerShell (Admin)</h3>
-                    <p class="text-slate-400 text-sm mt-1">Klik kanan Start > <span class="text-purple-400 font-semibold">Terminal (Admin)</span> atau PowerShell (Admin).</p>
+                    <h3 class="font-bold text-slate-100">Buka Terminal (Admin)</h3>
+                    <p class="text-slate-400 text-sm mt-1">Gunakan <span class="text-purple-400 font-semibold">PowerShell</span> (Direkomendasikan) atau Command Prompt (CMD).</p>
                 </div>
             </div>
 
@@ -45,39 +45,78 @@
                 <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-purple-900/50">2</div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-bold text-slate-100">Salin Perintah</h3>
-                    <p class="text-slate-400 text-sm mt-1 mb-3">Gunakan perintah standar untuk instalasi baru:</p>
                     
-                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner mb-6">
-                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">Standard Install</span>
-                            <button onclick="copyToClipboard('command-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
-                                <i class="far fa-copy"></i>
-                                <span>Salin</span>
-                            </button>
+                    <!-- Tabs UI -->
+                    <div class="flex gap-2 mb-4 border-b border-slate-800 pb-2">
+                        <button onclick="switchTab('ps')" id="tab-ps" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-purple-600 text-white rounded transition-all">PowerShell</button>
+                        <button onclick="switchTab('cmd')" id="tab-cmd" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-slate-800 text-slate-400 rounded transition-all">CMD</button>
+                    </div>
+
+                    <!-- PowerShell Tab Content -->
+                    <div id="content-ps" class="space-y-6">
+                        <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">Standard Install</span>
+                                <button onclick="copyToClipboard('ps-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
+                                    <i class="far fa-copy"></i>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <code id="ps-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex</code>
+                            </div>
                         </div>
-                        <div class="p-4">
-                            <code id="command-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
+
+                        <div class="p-4 bg-orange-500/5 rounded-xl border border-orange-500/20">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Force / Repair</span>
+                            </div>
+                            <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner mt-3">
+                                <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic text-orange-400/70">PowerShell Only</span>
+                                    <button onclick="copyToClipboard('ps-force', this)" class="flex items-center gap-2 px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded-md transition-all text-xs font-semibold">
+                                        <i class="far fa-copy"></i>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                                <div class="p-4">
+                                    <code id="ps-force" class="text-orange-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">$s=irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1; &([scriptblock]::Create($s)) -Force</code>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="p-4 bg-orange-500/5 rounded-xl border border-orange-500/20 mb-3">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Force Mode</span>
-                            <h4 class="text-orange-400 font-bold text-xs uppercase tracking-wider">Perbaikan Otomatis</h4>
+                    <!-- CMD Tab Content -->
+                    <div id="content-cmd" class="hidden space-y-6">
+                        <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">CMD Wrapper</span>
+                                <button onclick="copyToClipboard('cmd-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
+                                    <i class="far fa-copy"></i>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <code id="cmd-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
+                            </div>
                         </div>
-                        <p class="text-slate-500 text-[11px] leading-relaxed">Gunakan ini jika Imagick sudah terpasang tapi error (Startup Error), atau jika Anda ingin memaksa install ulang di semua versi.</p>
-                    </div>
 
-                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic text-orange-400/70">Force / Repair</span>
-                            <button onclick="copyToClipboard('command-force', this)" class="flex items-center gap-2 px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded-md transition-all text-xs font-semibold">
-                                <i class="far fa-copy"></i>
-                                <span>Salin</span>
-                            </button>
-                        </div>
-                        <div class="p-4">
-                            <code id="command-force" class="text-orange-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "$s=irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1; &([scriptblock]::Create($s)) -Force"</code>
+                        <div class="p-4 bg-orange-500/5 rounded-xl border border-orange-500/20">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Force / Repair</span>
+                            </div>
+                            <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner mt-3">
+                                <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic text-orange-400/70">CMD Wrapper</span>
+                                    <button onclick="copyToClipboard('cmd-force', this)" class="flex items-center gap-2 px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded-md transition-all text-xs font-semibold">
+                                        <i class="far fa-copy"></i>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                                <div class="p-4">
+                                    <code id="cmd-force" class="text-orange-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "$s=irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1; &([scriptblock]::Create($s)) -Force"</code>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,6 +148,29 @@
     </div>
 
     <script>
+        function switchTab(type) {
+            const psTab = document.getElementById('tab-ps');
+            const cmdTab = document.getElementById('tab-cmd');
+            const psContent = document.getElementById('content-ps');
+            const cmdContent = document.getElementById('content-cmd');
+
+            if (type === 'ps') {
+                psTab.classList.replace('bg-slate-800', 'bg-purple-600');
+                psTab.classList.replace('text-slate-400', 'text-white');
+                cmdTab.classList.replace('bg-purple-600', 'bg-slate-800');
+                cmdTab.classList.replace('text-white', 'text-slate-400');
+                psContent.classList.remove('hidden');
+                cmdContent.classList.add('hidden');
+            } else {
+                cmdTab.classList.replace('bg-slate-800', 'bg-purple-600');
+                cmdTab.classList.replace('text-slate-400', 'text-white');
+                psTab.classList.replace('bg-purple-600', 'bg-slate-800');
+                psTab.classList.replace('text-white', 'text-slate-400');
+                cmdContent.classList.remove('hidden');
+                psContent.classList.add('hidden');
+            }
+        }
+
         function copyToClipboard(id, btn) {
             const commandText = document.getElementById(id).innerText;
             const icon = btn.querySelector('i');
