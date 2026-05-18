@@ -15,8 +15,18 @@ Repositori ini diatur sebagai berikut:
 ### 1. eRapor SMK Synchronizer Fix Install
 Skrip untuk fix error saat instalasi eRapor SMK Synchronizer.
 - **Skrip**: `scripts/synchronizer-fix.ps1`
-- **Tutorial**: [web/synchronizer-fix/index.html](web/synchronizer-fix/index.html)
-- **Direct Link**: [script.minicenter.my.id](http://script.minicenter.my.id)
+- **Tutorial**: [Lihat Tutorial](https://script.minicenter.my.id/web/synchronizer-fix/)
+
+### 2. PHP Imagick Auto Installer
+Skrip otomatis untuk install ekstensi PHP Imagick di Laragon dan Laravel Herd.
+- **Skrip**: `scripts/imagick-autoinstaller.ps1`
+- **Tutorial**: [Lihat Tutorial](https://script.minicenter.my.id/web/imagick-autoinstaller/)
+
+---
+
+## Direct Link
+Semua tutorial dan perintah cepat dapat diakses melalui portal utama:
+👉 **[script.minicenter.my.id](https://script.minicenter.my.id)**
 
 ---
 

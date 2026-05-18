@@ -15,8 +15,8 @@ Proyek ini bertujuan untuk mempermudah pengguna dalam memperbaiki masalah sinkro
 
 ### Metode Cepat (PowerShell)
 
-Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
-
+**Standard Fix**
+Gunakan ini untuk menjalankan perbaikan standar:
 ```powershell
 powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/synchronizer-fix.ps1 | iex"
 ```
