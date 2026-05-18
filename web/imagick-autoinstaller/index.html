@@ -45,18 +45,39 @@
                 <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-purple-900/50">2</div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-bold text-slate-100">Salin Perintah</h3>
-                    <p class="text-slate-400 text-sm mt-1 mb-3">Klik tombol salin di bawah ini.</p>
+                    <p class="text-slate-400 text-sm mt-1 mb-3">Gunakan perintah standar untuk instalasi baru:</p>
                     
-                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner mb-6">
                         <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Terminal</span>
-                            <button onclick="copyToClipboard()" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold" id="copy-btn">
-                                <i class="far fa-copy" id="copy-icon"></i>
-                                <span id="copy-text">Salin</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">Standard Install</span>
+                            <button onclick="copyToClipboard('command-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
+                                <i class="far fa-copy"></i>
+                                <span>Salin</span>
                             </button>
                         </div>
                         <div class="p-4">
-                            <code id="command-text" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
+                            <code id="command-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-orange-500/5 rounded-xl border border-orange-500/20 mb-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Force Mode</span>
+                            <h4 class="text-orange-400 font-bold text-xs uppercase tracking-wider">Perbaikan Otomatis</h4>
+                        </div>
+                        <p class="text-slate-500 text-[11px] leading-relaxed">Gunakan ini jika Imagick sudah terpasang tapi error (Startup Error), atau jika Anda ingin memaksa install ulang di semua versi.</p>
+                    </div>
+
+                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic text-orange-400/70">Force / Repair</span>
+                            <button onclick="copyToClipboard('command-force', this)" class="flex items-center gap-2 px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded-md transition-all text-xs font-semibold">
+                                <i class="far fa-copy"></i>
+                                <span>Salin</span>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <code id="command-force" class="text-orange-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "$s=irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1; &([scriptblock]::Create($s)) -Force"</code>
                         </div>
                     </div>
                 </div>
@@ -88,20 +109,22 @@
     </div>
 
     <script>
-        function copyToClipboard() {
-            const commandText = document.getElementById('command-text').innerText;
-            const btn = document.getElementById('copy-btn');
-            const icon = document.getElementById('copy-icon');
-            const text = document.getElementById('copy-text');
+        function copyToClipboard(id, btn) {
+            const commandText = document.getElementById(id).innerText;
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
+            const oldBg = btn.className.match(/bg-\w+-\d+/)[0];
 
             navigator.clipboard.writeText(commandText).then(() => {
+                const isForce = id === 'command-force';
                 text.innerText = 'Tersalin!';
                 icon.className = 'fas fa-check';
-                btn.classList.replace('bg-purple-600', 'bg-emerald-600');
+                btn.classList.replace(oldBg, 'bg-emerald-600');
+                
                 setTimeout(() => {
                     text.innerText = 'Salin';
                     icon.className = 'far fa-copy';
-                    btn.classList.replace('bg-purple-600', 'bg-blue-600');
+                    btn.classList.replace('bg-emerald-600', oldBg);
                 }, 2000);
             });
         }
