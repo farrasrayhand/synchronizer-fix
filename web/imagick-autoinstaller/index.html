@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial PHP Imagick Auto Installer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .command-wrap { word-break: break-all; }
+    </style>
+</head>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-slate-900 rounded-2xl shadow-2xl p-6 sm:p-10 border border-slate-800">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-start mb-4">
+                <a href="../../index.html" class="text-slate-500 hover:text-blue-400 text-xs font-medium flex items-center gap-2 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    Kembali ke Beranda
+                </a>
+            </div>
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-purple-500/10 text-purple-400 rounded-xl mb-4 border border-purple-500/20">
+                <i class="fas fa-magic text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-white mb-2">PHP Imagick Auto Installer</h1>
+            <p class="text-slate-400 text-sm sm:text-base">Skrip otomatis untuk install ekstensi PHP Imagick di Laragon dan Laravel Herd (Windows).</p>
+        </div>
+
+        <!-- Langkah-langkah -->
+        <div class="space-y-8">
+            <!-- Langkah 1 -->
+            <div class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-purple-900/50">1</div>
+                <div>
+                    <h3 class="font-bold text-slate-100">Buka PowerShell (Admin)</h3>
+                    <p class="text-slate-400 text-sm mt-1">Klik kanan Start > <span class="text-purple-400 font-semibold">Terminal (Admin)</span> atau PowerShell (Admin).</p>
+                </div>
+            </div>
+
+            <!-- Langkah 2 -->
+            <div class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-purple-900/50">2</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-slate-100">Salin Perintah</h3>
+                    <p class="text-slate-400 text-sm mt-1 mb-3">Klik tombol salin di bawah ini.</p>
+                    
+                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Terminal</span>
+                            <button onclick="copyToClipboard()" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold" id="copy-btn">
+                                <i class="far fa-copy" id="copy-icon"></i>
+                                <span id="copy-text">Salin</span>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <code id="command-text" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Langkah 3 -->
+            <div class="flex gap-4">
+                <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-purple-900/50">3</div>
+                <div>
+                    <h3 class="font-bold text-slate-100">Jalankan</h3>
+                    <p class="text-slate-400 text-sm mt-1">Paste ke PowerShell lalu tekan <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-bold text-slate-200">ENTER</kbd>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="mt-10 p-4 bg-purple-500/5 rounded-xl border border-purple-500/10 flex gap-3 items-center">
+            <i class="fas fa-info-circle text-purple-400"></i>
+            <p class="text-purple-300/80 text-xs">Skrip ini akan mendeteksi semua versi PHP yang terpasang di Laragon dan Laravel Herd secara otomatis.</p>
+        </div>
+
+        <!-- Credit -->
+        <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+            <a href="https://github.com/farrasrayhand" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-slate-500 hover:text-blue-400 transition-colors text-xs font-medium group">
+                <i class="fab fa-github text-sm group-hover:scale-110 transition-transform"></i>
+                <span>Developed by farrasrayhand</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const commandText = document.getElementById('command-text').innerText;
+            const btn = document.getElementById('copy-btn');
+            const icon = document.getElementById('copy-icon');
+            const text = document.getElementById('copy-text');
+
+            navigator.clipboard.writeText(commandText).then(() => {
+                text.innerText = 'Tersalin!';
+                icon.className = 'fas fa-check';
+                btn.classList.replace('bg-purple-600', 'bg-emerald-600');
+                setTimeout(() => {
+                    text.innerText = 'Salin';
+                    icon.className = 'far fa-copy';
+                    btn.classList.replace('bg-purple-600', 'bg-blue-600');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
