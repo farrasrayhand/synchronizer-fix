@@ -201,6 +201,17 @@ function Install-ImagickTo($phpInfo, $label) {
     }
 
     $iniContent = Get-Content $phpIni -Raw
+    
+    # Pastikan extension_dir mengarah ke "ext"
+    if ($iniContent -match "(?m)^;?\s*extension_dir\s*=\s*") {
+        $iniContent = $iniContent -replace "(?m)^;?\s*(extension_dir\s*=\s*).*$", '$1"ext"'
+        Write-OK "extension_dir disetel ke `"ext`" di php.ini"
+    } else {
+        $iniContent = "extension_dir = `"ext`"`r`n" + $iniContent
+        Write-OK "extension_dir ditambahkan ke php.ini"
+    }
+
+    # Aktifkan extension=imagick
     if ($iniContent -match "(?m)^;?\s*extension\s*=\s*imagick") {
         $iniContent = $iniContent -replace "(?m)^;\s*(extension\s*=\s*imagick)", '$1'
         Set-Content -Path $phpIni -Value $iniContent -NoNewline
