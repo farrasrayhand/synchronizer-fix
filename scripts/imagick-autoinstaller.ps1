@@ -27,13 +27,16 @@ function Pause-Exit($code = 1) {
 # =============================================================================
 function Get-PhpInfo($phpExe) {
     try {
-        $ver  = & $phpExe -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;" 2>$null
+        # Jalankan tanpa mendamper error agar kita tahu jika ada crash
+        $ver = & $phpExe -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;" 2>&1
+        if ($LASTEXITCODE -ne 0 -or $ver -match "Error" -or $ver -match "Unable to load") {
+            return @{ Error = ($ver | Out-String).Trim(); Exe = $phpExe }
+        }
         $ts   = & $phpExe -r "echo PHP_ZTS ? 'ts' : 'nts';" 2>$null
         $arch = & $phpExe -r "echo PHP_INT_SIZE === 8 ? 'x64' : 'x86';" 2>$null
-        if (-not $ver) { return $null }
         return @{ Version = $ver; TS = $ts; Arch = $arch; Exe = $phpExe; Dir = Split-Path $phpExe -Parent }
     } catch {
-        return $null
+        return @{ Error = $_.Exception.Message; Exe = $phpExe }
     }
 }
 
@@ -227,9 +230,11 @@ if (Test-Path $laragonBase) {
         $exe = Join-Path $folder.FullName "php.exe"
         if (Test-Path $exe) {
             $info = Get-PhpInfo $exe
-            if ($info) {
+            if ($info.Version) {
                 $laragonPhpList += $info
                 Write-OK "Ditemukan: $($folder.Name) (PHP $($info.Version) $($info.TS.ToUpper()) $($info.Arch))"
+            } elseif ($info.Error) {
+                Write-Warn "Folder $($folder.Name) dilewati karena PHP Error: $($info.Error -replace '\r|\n', ' ' | Select-Object -First 1)"
             }
         }
     }
@@ -252,9 +257,11 @@ if (Test-Path $herdBase) {
         $exe = Join-Path $folder.FullName "php.exe"
         if (Test-Path $exe) {
             $info = Get-PhpInfo $exe
-            if ($info) {
+            if ($info.Version) {
                 $herdPhpList += $info
                 Write-OK "Ditemukan: $($folder.Name) (PHP $($info.Version) $($info.TS.ToUpper()) $($info.Arch))"
+            } elseif ($info.Error) {
+                Write-Warn "Folder $($folder.Name) dilewati karena PHP Error: $($info.Error -replace '\r|\n', ' ' | Select-Object -First 1)"
             }
         }
     }
