@@ -46,31 +46,40 @@ function Get-ImagickDllUrl($version, $ts, $arch) {
     $cacheKey = "$version-$ts-$arch"
     if ($peclCache.ContainsKey($cacheKey)) { return $peclCache[$cacheKey] }
 
+    $userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
     try {
         # 1. Dapatkan halaman utama PECL
-        $peclPage = Invoke-WebRequest -Uri "https://pecl.php.net/package/imagick" -UseBasicParsing
+        Write-Info "Menghubungi pecl.php.net..."
+        $peclPage = Invoke-WebRequest -Uri "https://pecl.php.net/package/imagick" -UseBasicParsing -UserAgent $userAgent
         
         # 2. Cari link "DLL" untuk versi stable terbaru. 
-        # Di PECL, baris tabel biasanya: [Versi] [State] ... [DLL link]
-        # Kita cari 'stable' lalu ambil link DLL setelahnya.
-        $regexStable = 'stable.*?(/package/imagick/[\d\.]+/windows)'
+        # Kita cari 'stable' lalu ambil link DLL pertama yang muncul setelahnya.
+        $regexStable = 'stable.*?href="(/package/imagick/[\d\.]+/windows)"'
         $matchStable = [regex]::Match($peclPage.Content, $regexStable, [System.Text.RegularExpressions.RegexOptions]::Singleline)
         
         if (-not $matchStable.Success) {
             # Fallback: ambil link DLL apa saja jika tidak ketemu kata 'stable'
-            $matchStable = [regex]::Match($peclPage.Content, '/package/imagick/[\d\.]+/windows')
+            Write-Warn "Versi 'stable' tidak terdeteksi eksplisit, mencoba link DLL pertama..."
+            $matchStable = [regex]::Match($peclPage.Content, 'href="(/package/imagick/[\d\.]+/windows)"')
         }
 
-        if (-not $matchStable.Success) { return $null }
+        if (-not $matchStable.Success) { 
+            Write-Fail "Gagal menemukan link halaman DLL di PECL."
+            return $null 
+        }
         
-        $dllPagePath = if ($matchStable.Groups.Count -gt 1) { $matchStable.Groups[1].Value } else { $matchStable.Value }
+        $dllPagePath = $matchStable.Groups[1].Value
         $dllPageUrl = "https://pecl.php.net" + $dllPagePath
+        Write-Info "Ditemukan halaman DLL: $dllPageUrl"
         
         # 3. Dapatkan halaman subpage DLL
-        $dllPage = Invoke-WebRequest -Uri $dllPageUrl -UseBasicParsing
+        $dllPage = Invoke-WebRequest -Uri $dllPageUrl -UseBasicParsing -UserAgent $userAgent
         
         # 4. Cari link zip di halaman tersebut
+        # Pola link: https://windows.php.net/downloads/pecl/releases/imagick/3.8.1/php_imagick-3.8.1-8.3-nts-vs16-x64.zip
         $allLinks = [regex]::Matches($dllPage.Content, 'https://windows\.php\.net/downloads/pecl/releases/imagick/[^"]+\.zip')
+        Write-Info "Ditemukan $($allLinks.Count) link download di halaman DLL."
         
         $match = $allLinks | Where-Object {
             $_.Value -match "-$version-" -and
@@ -78,10 +87,16 @@ function Get-ImagickDllUrl($version, $ts, $arch) {
             $_.Value -match "-$arch\.zip"
         } | Select-Object -First 1
 
+        if (-not $match) {
+            # Debug: cetak link yang ada jika tidak ketemu
+            Write-Warn "Tidak ada yang cocok dengan: PHP $version, $ts, $arch"
+        }
+
         $url = if ($match) { $match.Value } else { $null }
         $peclCache[$cacheKey] = $url
         return $url
     } catch {
+        Write-Fail "Error saat mencari DLL: $($_.Exception.Message)"
         return $null
     }
 }
