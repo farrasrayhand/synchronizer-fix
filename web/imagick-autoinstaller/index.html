@@ -54,23 +54,29 @@
 
                     <!-- PowerShell Tab Content -->
                     <div id="content-ps" class="space-y-6">
-                        <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                            <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">Standard Install</span>
-                                <button onclick="copyToClipboard('ps-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
-                                    <i class="far fa-copy"></i>
-                                    <span>Salin</span>
-                                </button>
+                        <div class="space-y-2">
+                            <p class="text-slate-500 text-[11px] font-medium uppercase tracking-wider">Pilihan 1: Standard Install</p>
+                            <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                                <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">Recommended</span>
+                                    <button onclick="copyToClipboard('ps-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
+                                        <i class="far fa-copy"></i>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                                <div class="p-4">
+                                    <code id="ps-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex</code>
+                                </div>
                             </div>
-                            <div class="p-4">
-                                <code id="ps-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex</code>
-                            </div>
+                            <p class="text-slate-500 text-[11px] leading-relaxed italic">Gunakan ini untuk instalasi baru atau menambah Imagick ke versi PHP yang belum terpasang.</p>
                         </div>
 
                         <div class="p-4 bg-orange-500/5 rounded-xl border border-orange-500/20">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Force / Repair</span>
+                                <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Pilihan 2</span>
+                                <h4 class="text-orange-400 font-bold text-xs uppercase tracking-wider">Force / Repair Mode</h4>
                             </div>
+                            <p class="text-slate-500 text-[11px] leading-relaxed mb-3">Gunakan ini jika PHP error saat startup (Startup Error), atau jika Anda ingin memaksa install ulang (overwrite) file yang sudah ada.</p>
                             <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner mt-3">
                                 <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
                                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic text-orange-400/70">PowerShell Only</span>
@@ -88,23 +94,29 @@
 
                     <!-- CMD Tab Content -->
                     <div id="content-cmd" class="hidden space-y-6">
-                        <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                            <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">CMD Wrapper</span>
-                                <button onclick="copyToClipboard('cmd-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
-                                    <i class="far fa-copy"></i>
-                                    <span>Salin</span>
-                                </button>
+                        <div class="space-y-2">
+                            <p class="text-slate-500 text-[11px] font-medium uppercase tracking-wider">Pilihan 1: Standard Install</p>
+                            <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                                <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic">CMD Wrapper</span>
+                                    <button onclick="copyToClipboard('cmd-standard', this)" class="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all text-xs font-semibold">
+                                        <i class="far fa-copy"></i>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                                <div class="p-4">
+                                    <code id="cmd-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
+                                </div>
                             </div>
-                            <div class="p-4">
-                                <code id="cmd-standard" class="text-purple-400 font-mono text-xs sm:text-sm leading-relaxed command-wrap">powershell -ExecutionPolicy Bypass -Command "irm http://script.minicenter.my.id/scripts/imagick-autoinstaller.ps1 | iex"</code>
-                            </div>
+                            <p class="text-slate-500 text-[11px] leading-relaxed italic">Gunakan ini untuk instalasi baru via Command Prompt.</p>
                         </div>
 
                         <div class="p-4 bg-orange-500/5 rounded-xl border border-orange-500/20">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Force / Repair</span>
+                                <span class="bg-orange-500 text-[10px] font-black text-black px-1.5 py-0.5 rounded uppercase tracking-tighter">Pilihan 2</span>
+                                <h4 class="text-orange-400 font-bold text-xs uppercase tracking-wider">Force / Repair Mode</h4>
                             </div>
+                            <p class="text-slate-500 text-[11px] leading-relaxed mb-3">Gunakan ini untuk memperbaiki error startup via Command Prompt.</p>
                             <div class="bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner mt-3">
                                 <div class="flex items-center justify-between px-4 py-2 bg-slate-800/40">
                                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono italic text-orange-400/70">CMD Wrapper</span>
