@@ -27,13 +27,16 @@ function Pause-Exit($code = 1) {
 # =============================================================================
 function Get-PhpInfo($phpExe) {
     try {
-        # Jalankan tanpa mendamper error agar kita tahu jika ada crash
-        $ver = & $phpExe -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;" 2>&1
-        if ($LASTEXITCODE -ne 0 -or $ver -match "Error" -or $ver -match "Unable to load") {
-            return @{ Error = ($ver | Out-String).Trim(); Exe = $phpExe }
+        # Gunakan -n (no php.ini) agar tidak terganggu extension yang error/crash saat deteksi
+        $ver  = & $phpExe -n -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;" 2>$null
+        $ts   = & $phpExe -n -r "echo PHP_ZTS ? 'ts' : 'nts';" 2>$null
+        $arch = & $phpExe -n -r "echo PHP_INT_SIZE === 8 ? 'x64' : 'x86';" 2>$null
+        
+        if (-not $ver) {
+            # Jika tetap gagal, kemungkinan binary memang rusak atau butuh runtime
+            $err = & $phpExe -v 2>&1 | Out-String
+            return @{ Error = $err.Trim(); Exe = $phpExe }
         }
-        $ts   = & $phpExe -r "echo PHP_ZTS ? 'ts' : 'nts';" 2>$null
-        $arch = & $phpExe -r "echo PHP_INT_SIZE === 8 ? 'x64' : 'x86';" 2>$null
         return @{ Version = $ver; TS = $ts; Arch = $arch; Exe = $phpExe; Dir = Split-Path $phpExe -Parent }
     } catch {
         return @{ Error = $_.Exception.Message; Exe = $phpExe }
